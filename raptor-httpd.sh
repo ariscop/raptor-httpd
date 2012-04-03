@@ -139,7 +139,7 @@ if [ "$1" ]; then
 		export DOCUMENT_ROOT=`echo $1 | sed -E s:/?$:/:`
 	fi
 else
-	export DOCUMENT_ROOT ="`pwd`/"
+	export DOCUMENT_ROOT="`pwd`/"
 fi
 
 echo Starting Raptor-httpd. prepare to be eaten
