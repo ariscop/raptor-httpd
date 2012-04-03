@@ -142,7 +142,7 @@ else
 	export DOCUMENT_ROOT ="`pwd`/"
 fi
 
-echo Starting Raptop-httpd. prepare to be eaten
+echo Starting Raptor-httpd. prepare to be eaten
 
 MODE=child socat TCP-LISTEN:8080,reuseaddr,fork EXEC:$0,fdin=3,fdout=3
 
