@@ -1,6 +1,6 @@
 #!/bin/bash
 
-serve-cgi() {
+serve_cgi() {
     export \
     SERVER_SOFTWARE="Raptor Httpd" \
     SERVER_NAME="localhost" \
@@ -32,7 +32,7 @@ serve-cgi() {
 }
 
 
-serve-file() {
+serve_file() {
 	MIMETYPE="`file --mime-type -b "$1"`"
 	echo "HTTP/1.0 200 OK" >&3
 	echo "Content-Type: $MIMETYPE" >&3
@@ -41,7 +41,7 @@ serve-file() {
 	cat "$FILENAME" >&3
 }
 
-serve-dir() {
+serve_dir() {
 	echo "HTTP/1.0 200 OK" >&3
 	echo "Content-Type: text/plain" >&3
 	echo >&3
@@ -50,12 +50,12 @@ serve-dir() {
 	ls -l "$1" 1>&3 2>&3
 }
 
-do-403() {
+do_403() {
 	echo "HTTP/1.0 403 Forbidden\n" >&3
 	echo >&3
 }
 
-do-404() {
+do_404() {
 	echo "HTTP/1.0 404 File Not Found\n" >&3
 	echo >&3
 	echo "$FILENAME" not found
@@ -63,13 +63,13 @@ do-404() {
 
 
 
-http-accept() {
+http_accept() {
 	read -r REQ <&3
 		
 	echo "$REQ"
 	
 	################
-	parse-line() {
+	parse_line() {
 		echo "$1" | cut -d: -f1 |
 			sed -E 's:[^a-zA-Z0-9]:_:g;s/.$//g' |
 			tr '[:lower:]' '[:upper:]'
@@ -77,11 +77,11 @@ http-accept() {
 	
 	read -r LINE <&3
 	
-	HEAD=`parse-line "$LINE"`
+	HEAD=`parse_line "$LINE"`
 	while [ "$HEAD" ]; do
 		export HTTP_$HEAD="`echo "$LINE" | cut -d" " -f2-`"
 		read -r LINE <&3
-		HEAD=`parse-line "$LINE"`
+		HEAD=`parse_line "$LINE"`
 	done
 	################
 	# ^^ its best this is left alone
@@ -96,7 +96,7 @@ http-accept() {
 	
 	#block ..
 	if [ `echo $FILENAME | grep -F ".."` ]; then
-		do-403
+		do_403
 		return
 	fi
 	
@@ -105,28 +105,28 @@ http-accept() {
 			if [ -r "$FILENAME" ] ; then
 				if [ -f "$FILENAME" ]; then
 					if [[ "$REQPATH" == "${REQPATH%.php}.php" ]] ; then
-						echo running serve-cgi
-						serve-cgi "$METHOD" "$REQPATH" "$QUERY" "$FILENAME"
+						echo running serve_cgi
+						serve_cgi "$METHOD" "$REQPATH" "$QUERY" "$FILENAME"
 					else
-						serve-file "$FILENAME"
+						serve_file "$FILENAME"
 					fi
 				elif [ -d "$FILENAME" ]; then
-					serve-dir "$FILENAME"
+					serve_dir "$FILENAME"
 				else
-					do-404
+					do_404
 				fi
 			else
-				do-404
+				do_404
 			fi
 			;;
 		*)
-			do-403
+			do_403
 			;;
 	esac
 }
 
-if [[ $MODE == "child" ]] ; then
-	http-accept
+if [[ "$MODE" == "child" ]] ; then
+	http_accept
 	exit
 fi
 
